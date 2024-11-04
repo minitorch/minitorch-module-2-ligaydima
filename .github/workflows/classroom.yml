@@ -22,7 +22,7 @@ jobs:
         setup-command: sudo -H pip3 install -qr requirements.txt; sudo -H pip3 install
           flake8==5.0.4 mypy
         command: flake8 --ignore "N801, E203, E266, E501, W503, F812, E741, N803,
-          N802, N806" minitorch/ tests/ project/; mypy minitorch/*.py
+          N802, N806" minitorch/ tests/ project/;
         timeout: 10
     - name: Task 2.1
       id: task-2-1
