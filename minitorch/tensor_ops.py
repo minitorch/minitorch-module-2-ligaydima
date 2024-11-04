@@ -268,8 +268,14 @@ def tensor_map(fn: Callable[[float], float]) -> Any:
         in_shape: Shape,
         in_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        for i in range(len(out)):
+            out_index_ndim = np.empty_like(out_shape, dtype=int)
+            in_index_ndim = np.empty_like(in_shape, dtype=int)
+            to_index(i, out_shape, out_index_ndim)
+            broadcast_index(out_index_ndim, out_shape, in_shape, in_index_ndim)
+            cur_input_idx = index_to_position(in_index_ndim, in_strides)
+            cur_output_idx = index_to_position(out_index_ndim, out_strides)
+            out[cur_output_idx] = fn(in_storage[cur_input_idx])
 
     return _map
 
@@ -318,8 +324,17 @@ def tensor_zip(fn: Callable[[float, float], float]) -> Any:
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        for i in range(len(out)):
+            out_index_ndim = np.empty_like(out_shape, dtype=int)
+            a_index_ndim = np.empty_like(a_shape, dtype=int)
+            b_index_ndim = np.empty_like(b_shape, dtype=int)
+            to_index(i, out_shape, out_index_ndim)
+            broadcast_index(out_index_ndim, out_shape, a_shape, a_index_ndim)
+            broadcast_index(out_index_ndim, out_shape, b_shape, b_index_ndim)
+            cur_a_index = index_to_position(a_index_ndim, a_strides)
+            cur_b_index = index_to_position(b_index_ndim, b_strides)
+            cur_output_index = index_to_position(out_index_ndim, out_strides)
+            out[cur_output_index] = fn(a_storage[cur_a_index], b_storage[cur_b_index])
 
     return _zip
 
@@ -354,8 +369,15 @@ def tensor_reduce(fn: Callable[[float, float], float]) -> Any:
         a_strides: Strides,
         reduce_dim: int,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        for i in range(len(out)):
+            out_index_ndim = np.empty_like(out_shape, dtype=int)
+            to_index(i, out_shape, out_index_ndim)
+            cur_output_index = index_to_position(out_index_ndim, out_strides)
+            for j in range(a_shape[reduce_dim]):
+                a_index_ndim = out_index_ndim.copy()
+                a_index_ndim[reduce_dim] = j
+                cur_a_index = index_to_position(a_index_ndim, a_strides)
+                out[cur_output_index] = fn(out[cur_output_index], a_storage[cur_a_index])
 
     return _reduce
 

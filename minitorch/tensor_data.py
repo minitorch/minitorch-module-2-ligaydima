@@ -42,9 +42,10 @@ def index_to_position(index: Index, strides: Strides) -> int:
     Returns:
         Position in storage
     """
-
-    # TODO: Implement for Task 2.1.
-    raise NotImplementedError("Need to implement for Task 2.1")
+    res = 0
+    for x, y in zip(index, strides):
+        res += x * y
+    return res
 
 
 def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
@@ -60,8 +61,9 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
         out_index : return index corresponding to position.
 
     """
-    # TODO: Implement for Task 2.1.
-    raise NotImplementedError("Need to implement for Task 2.1")
+    for d in range(len(shape) - 1, -1, -1):
+        out_index[d] = ordinal % shape[d]
+        ordinal //= shape[d]
 
 
 def broadcast_index(
@@ -83,8 +85,11 @@ def broadcast_index(
     Returns:
         None
     """
-    # TODO: Implement for Task 2.2.
-    raise NotImplementedError("Need to implement for Task 2.2")
+    for d in range(1, len(shape) + 1):
+        if shape[-d] != 1:
+            out_index[-d] = big_index[-d]
+        else:
+            out_index[-d] = 0
 
 
 def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
@@ -101,8 +106,17 @@ def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
     Raises:
         IndexingError : if cannot broadcast
     """
-    # TODO: Implement for Task 2.2.
-    raise NotImplementedError("Need to implement for Task 2.2")
+    if len(shape1) < len(shape2):
+        shape1, shape2 = shape2, shape1
+    new_shape = np.array(shape1, dtype=int)
+    for d in range(1, len(shape2) + 1):
+        if shape1[-d] == shape2[-d]:
+            new_shape[-d] = shape1[-d]
+            continue
+        if shape1[-d] != 1 and shape2[-d] != 1:
+            raise IndexingError(f"Broadcast fail {shape1=}, {shape2=}")
+        new_shape[-d] = max(shape1[-d], shape2[-d])
+    return tuple(new_shape)
 
 
 def strides_from_shape(shape: UserShape) -> UserStrides:
@@ -221,9 +235,12 @@ class TensorData:
         assert list(sorted(order)) == list(
             range(len(self.shape))
         ), f"Must give a position to each dimension. Shape: {self.shape} Order: {order}"
-
-        # TODO: Implement for Task 2.1.
-        raise NotImplementedError("Need to implement for Task 2.1")
+        new_shape = []
+        new_strides = []
+        for i in order:
+            new_shape.append(self.shape[i])
+            new_strides.append(self.strides[i])
+        return TensorData(self._storage, tuple(new_shape), tuple(new_strides))
 
     def to_string(self) -> str:
         s = ""
