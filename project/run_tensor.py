@@ -26,7 +26,6 @@ class Network(minitorch.Module):
         return self.layer3.forward(out).sigmoid()
 
 
-
 class Linear(minitorch.Module):
     def __init__(self, in_size, out_size):
         super().__init__()
